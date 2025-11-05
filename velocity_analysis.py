@@ -9,7 +9,7 @@ from matplotlib.gridspec import GridSpec
 l2      = 55.00
 alpha1  = 45.00
 l3      = 115.0
-alpha2  = -55.00
+alpha2  = -35.00
 l4      = 87.00
 e4      = 150           # End Effector to J14 distance
 e3      = 95          # End Effector to J34 distance
@@ -54,13 +54,13 @@ def get_intersections(x0, y0, r0, x1, y1, r1):
     
     # non intersecting
     if d > r0 + r1 :
-        return None
+        return None,None,None,None
     # One circle within other
     if d < abs(r0-r1):
-        return None
+        return None,None,None,None
     # coincident circles
     if d == 0 and r0 == r1:
-        return None
+        return None,None,None,None
     else:
         a=(r0**2-r1**2+d**2)/(2*d)
         h=np.sqrt(r0**2-a**2)
@@ -160,7 +160,7 @@ ay_e = np.gradient(vy_e,dt)
 e_speed_trace = np.hypot(vx_e,vy_e) / 1000 # Dividing by 1000 to convert from mm/s to m/s
 e_accel = np.hypot(ax_e,ay_e) / 1000 # Dividing by 1000 to convert from mm/s^2 to m/s^2
 
-fig = plt.figure(figsize=(12, 7))
+fig = plt.figure(figsize=(16, 9))
 gs = GridSpec(3, 3, figure=fig, width_ratios=[2.0, 1.0, 1.0], height_ratios=[1.0, 1.0, 1.0], hspace=0.4, wspace=0.35)
 
 ax_anim = fig.add_subplot(gs[:, 0])
@@ -201,7 +201,7 @@ ax_eacc = fig.add_subplot(gs[2,2]); ax_eacc.plot(t,e_accel); ax_eacc.set_title("
 eacc_marker, = ax_eacc.plot([], [], 'ko', ms=5)
 
 def init_anim():
-    for ln in (line_L1,line_L2,line_L3,line_L4): ln.set_data([],[])
+    for ln in (line_L1,line_L2,line_L3,line_L4,line_L5): ln.set_data([],[])
     for p in (ptA,ptB,ptC,ptD,ptT): p.set_data([],[])
     for tr in (trailT,trailC,trailD): tr.set_data([],[])
     for m in (spd_marker,w4t_marker,th_marker,w4th_marker,ev_marker,eacc_marker): m.set_data([],[])
@@ -229,4 +229,7 @@ def update_anim(i):
 
 
 ani = FuncAnimation(fig, update_anim, frames=n_frames, init_func=init_anim, interval=1000/FPS, blit=True)
+
+ani.save("Mechanism_Animation.gif",dpi=300,writer="ffmpeg",fps=30)
+
 plt.show()
